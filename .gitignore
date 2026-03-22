@@ -1,0 +1,22 @@
+# Python caches / virtualenv
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Test/runtime outputs
+logs/
+reports/
+*.log
+
+# Local debug scripts
+temp_check_orangehrm.py
+
+# IDE files
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db

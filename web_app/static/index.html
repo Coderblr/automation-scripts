@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Automation Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔬</text></svg>">
+</head>
+<body>
+
+    <!-- Toast container -->
+    <div id="toastContainer"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-inner">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 2h6l-2 7h4l-7 9 2-7H8z"/>
+                </svg>
+                <h1>Test Automation Dashboard</h1>
+            </div>
+            <div class="status-badge" id="globalStatus">
+                <span class="status-dot idle"></span>
+                <span id="statusText">Ready</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Prerequisites bar -->
+    <section class="prereq-bar" id="prereqBar">
+        <div class="prereq-item" id="prPython">
+            <span class="prereq-icon">...</span> Python
+        </div>
+        <div class="prereq-item" id="prJava">
+            <span class="prereq-icon">...</span> Java
+        </div>
+        <div class="prereq-item" id="prMaven">
+            <span class="prereq-icon">...</span> Maven
+        </div>
+        <div class="prereq-item" id="prExcel">
+            <span class="prereq-icon">...</span> Excel File
+        </div>
+    </section>
+
+    <main>
+        <!-- Config + Setup row -->
+        <div class="grid-row">
+
+            <!-- Configuration card -->
+            <section class="card">
+                <div class="card-header">
+                    <h2>Configuration</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="baseUrl">Application URL</label>
+                        <input type="url" id="baseUrl" placeholder="https://www.saucedemo.com/">
+                    </div>
+                    <div class="form-group">
+                        <label for="apiBaseUrl">API Base URL <small>(optional)</small></label>
+                        <input type="url" id="apiBaseUrl" placeholder="http://localhost:8000">
+                    </div>
+                    <div class="form-group">
+                        <label for="testUsername">Username</label>
+                        <input type="text" id="testUsername" placeholder="Enter username" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="testPassword">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="testPassword" placeholder="Enter password" autocomplete="off">
+                            <button type="button" class="btn-eye" onclick="togglePassword()" title="Show / hide password">
+                                <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveConfig()">Save Configuration</button>
+                </div>
+            </section>
+
+            <!-- Test Setup card -->
+            <section class="card">
+                <div class="card-header">
+                    <h2>Test Execution</h2>
+                </div>
+                <div class="card-body">
+                    <label class="section-label">Browser</label>
+                    <div class="option-group" id="browserGroup">
+                        <button class="option-card selected" data-value="chrome" onclick="selectOption('browser',this)">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4"/></svg>
+                            Chrome
+                        </button>
+                        <button class="option-card" data-value="edge" onclick="selectOption('browser',this)">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8"/></svg>
+                            Edge
+                        </button>
+                        <button class="option-card" data-value="firefox" onclick="selectOption('browser',this)">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>
+                            Firefox
+                        </button>
+                    </div>
+
+                    <label class="section-label">Framework</label>
+                    <div class="option-group" id="frameworkGroup">
+                        <button class="option-card selected" data-value="python" onclick="selectOption('framework',this)">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.5 2 6 4 6 5v3h6v1H5c-2 0-3 1.5-3 4s1 4 3 4h2v-3c0-2 1.5-3 3-3h6c1.5 0 3-1 3-3V5c0-1-1.5-3-6-3z"/></svg>
+                            Python + Selenium
+                        </button>
+                        <button class="option-card" data-value="java" onclick="selectOption('framework',this)">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-9 6 18 3-9h4"/></svg>
+                            Java + Selenium
+                        </button>
+                    </div>
+
+                    <label class="section-label">Upload Excel Test Cases <small>(optional)</small></label>
+                    <div class="upload-area" id="uploadArea"
+                         ondragover="handleDragOver(event)"
+                         ondragleave="handleDragLeave(event)"
+                         ondrop="handleDrop(event)">
+                        <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="handleFileSelect(event)" hidden>
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="upload-icon"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <p>Drag & drop Excel file here</p>
+                        <p class="upload-hint">or <a href="#" onclick="document.getElementById('excelFile').click();return false;">browse files</a> &middot; .xlsx only</p>
+                    </div>
+                    <div id="uploadStatus" class="upload-status" style="display:none"></div>
+
+                    <div class="tc-preview" id="tcPreview" style="display:none">
+                        <label class="section-label">Test Cases Loaded</label>
+                        <div id="tcList" class="tc-list"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Auto Script Generation -->
+        <section class="card">
+            <div class="card-header">
+                <h2>Auto Excel Script Generator</h2>
+            </div>
+            <div class="card-body">
+                <p class="generator-help">
+                    Enter URL, username, and password in the Configuration section, then click Generate.
+                    The tool will log in, detect elements, and create a ready-to-edit Excel script for non-technical testers.
+                </p>
+                <div class="generator-actions">
+                    <div class="form-group generator-depth">
+                        <label for="generationModeInput">Generation Mode</label>
+                        <select id="generationModeInput">
+                            <option value="auto_login_navigation" selected>Auto Login + Navigation</option>
+                            <option value="navigation_only">Navigation Only (No Login)</option>
+                            <option value="minimal_smoke">Minimal Smoke</option>
+                        </select>
+                        <div class="mode-help-list">
+                            <div class="mode-help-item">
+                                <span class="mode-name">Auto Login + Navigation:</span>
+                                Best for apps with standard login and post-login modules.
+                            </div>
+                            <div class="mode-help-item">
+                                <span class="mode-name">Navigation Only (No Login):</span>
+                                Use for public websites or when login is custom/modal and should be skipped.
+                            </div>
+                            <div class="mode-help-item">
+                                <span class="mode-name">Minimal Smoke:</span>
+                                Generates a quick sanity suite (open URL, basic checks, screenshot).
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group generator-depth">
+                        <label for="maxPagesInput">Max Pages To Scan</label>
+                        <input type="number" id="maxPagesInput" min="2" max="30" value="12">
+                    </div>
+                    <button class="btn btn-primary" id="generateBtn" onclick="generateExcelScripts()">
+                        Generate Excel Script
+                    </button>
+                    <a class="btn btn-small" id="downloadGeneratedBtn" href="/api/generated-excel/download" style="display:none" download>
+                        Download Generated Excel
+                    </a>
+                </div>
+                <div id="generatorStatus" class="generator-status">Status: idle</div>
+                <div class="generator-log" id="generatorLog">
+                    <div class="console-line muted">Generator logs will appear here...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Run / Stop buttons -->
+        <section class="run-section">
+            <button class="btn btn-run" id="runBtn" onclick="runTests()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Run Tests
+            </button>
+            <button class="btn btn-stop" id="stopBtn" onclick="stopTests()" style="display:none">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                Stop Tests
+            </button>
+        </section>
+
+        <!-- Console -->
+        <section class="card console-card">
+            <div class="card-header">
+                <h2>Live Console</h2>
+                <button class="btn btn-small" onclick="clearConsole()">Clear</button>
+            </div>
+            <div class="console" id="console">
+                <div class="console-line muted">Waiting for test execution...</div>
+            </div>
+        </section>
+
+        <!-- Reports -->
+        <section class="card">
+            <div class="card-header">
+                <h2>Reports</h2>
+                <button class="btn btn-small" onclick="refreshReports()">Refresh</button>
+            </div>
+            <div class="card-body">
+                <table class="reports-table">
+                    <thead>
+                        <tr>
+                            <th>Report Name</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsBody">
+                        <tr><td colspan="4" class="no-data">No reports generated yet. Run tests to see results here.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Test Automation Framework &copy; 2026</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
